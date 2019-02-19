@@ -29,7 +29,7 @@
     })
     export default class Home extends Vue {
 
-        private initialTodos: Array<Todo> = [
+        private initialTodos: Array<Todo | any> = [
             {
                 "title": "Grocery shopping",
                 "date": "08/20/2018",
@@ -65,7 +65,7 @@
         
 
         created() {
-            const initialTodos = [].concat(this.initialTodos);
+            const initialTodos: Array<Todo | any> = ([] as Array<any>).concat(this.initialTodos);
             initialTodos.forEach(todo => {
                 todo.id = `ID_${Math.floor(Math.random() * 10e6)}`;
             });
@@ -83,7 +83,7 @@
         get todoColorTypes() {
             return this.colorTypes;
         }
-        addNewTodo(color) {
+        addNewTodo(color: string) {
             this.newTodoMsg = this.newTodoMsg.trim();
             if (this.newTodoMsg !== '') {
                 const dt = new Date();
@@ -99,12 +99,12 @@
                 this.inputInvalid = true;
             }
         }
-        onNewTodoKeyUp($event:  KeyboardEvent, color) {
+        onNewTodoKeyUp($event:  KeyboardEvent, color: string) {
             if ($event.keyCode && $event.keyCode === 13) {
                 this.addNewTodo(color);
             }
         }
-        markTodoAsDone(key) {
+        markTodoAsDone(key: string) {
             this.$store.dispatch('markTodoAsDone', key);
         }
         resetClass() {

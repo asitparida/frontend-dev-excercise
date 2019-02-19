@@ -12,9 +12,6 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "node",
-      "mocha",
-      "chai"
     ],
     "paths": {
       "@/*": [
