@@ -1,9 +1,16 @@
 <template>
-    <div class="todo">
+    <div class="todo" v-bind:class="{ done: done }">
         <label class="todo-label">{{title}}</label>
         <div class="todo-type">
             <label class="todo-expiry">{{dt}}</label>
-            <div class="todo-color-type" v-bind:style="{ backgroundColor: color }"></div>
+            <template v-if="done">
+                <div class="todo-color-type" v-bind:style="{ backgroundColor: color }">
+                    <i class="material-icons" >done</i>
+                </div>
+            </template>
+            <template v-if="!done">
+                <div class="todo-color-type" v-bind:style="{ backgroundColor: color }" v-on:click="$emit('mark-todo-as-done')"></div>
+            </template>
         </div>
     </div>
 </template>
@@ -15,7 +22,8 @@
         props: {
             title: String,
             dt: String,
-            color: String
+            color: String,
+            done: Boolean
         }
     })
     export default class TodoItem extends Vue {
@@ -31,6 +39,7 @@
         display: flex;
         flex-flow: row wrap;
         margin: 5px 0;
+        animation: appear-in 0.3s linear 0s forwards;
         &.done {
             background: rgba(0,0,0,0.025);
             .todo-label {
@@ -41,10 +50,11 @@
                     color: #C0C0C0;
                 }
                 .todo-color-type {
-                    opacity: 0.60;
+                    opacity: 0.50;
                     text-align: center;
                     cursor: default;
                     i {
+                        opacity: 1;
                         font-size: small;
                         line-height: 24px;
                         color: #fff;
@@ -76,12 +86,12 @@
             flex-flow: row;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
             .todo-expiry {
                 color: #909090;
                 font-size: small;
             }
             .todo-color-type {
+                cursor: pointer;
                 width: 24px;
                 height: 24px;
                 margin: 0 5px 0 15px;
@@ -89,5 +99,15 @@
                 background: rgba(0,0,0,0.10);
             }
         }
-    }   
+    }
+    @keyframes appear-in {
+        0% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0px);
+        }
+    }
 </style>

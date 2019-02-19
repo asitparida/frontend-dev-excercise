@@ -1,18 +1,18 @@
 <template>
     <div class="home">
         <h1>My Todos</h1>
-        <div class="input-holder">
-            <input placeholder="+ add new"/>
+        <div class="input-holder" >
+            <input placeholder="+ add new" v-model="newTodoMsg" tabindex="0" @input="resetClass()" v-bind:class="{ invalid: inputInvalid }" />
             <div class="color-types-holder">
-                <div class="color-type" v-for="value in todoColorTypes" v-bind:style="{ backgroundColor: value }"></div>
+                <div class="color-type" tabindex="0" @keyup="onNewTodoKeyUp($event, value)" @click="addNewTodo(value)" v-for="value in todoColorTypes" v-bind:style="{ backgroundColor: value }"></div>
             </div>
         </div>
         <div class="todo-holder">
-            <TodoItem v-for="todo in todos"  v-bind:title="todo.title" v-bind:dt="todo.date" v-bind:color="todo.color" v-bind:done="false"></TodoItem>
+            <TodoItem v-for="todo in todos" :key="todo.id" v-on:mark-todo-as-done="markTodoAsDone(todo.id)"   v-bind:title="todo.title" v-bind:dt="todo.date" v-bind:color="todo.color" v-bind:done="false"></TodoItem>
         </div>
         <div class="todo-holder done-list">
             <h2>Done</h2>
-            <TodoItem v-for="todo in todos"  v-bind:title="todo.title" v-bind:dt="todo.date" v-bind:color="todo.color" v-bind:done="true"></TodoItem>
+            <TodoItem v-for="todo in doneTodos"  v-bind:title="todo.title" v-bind:dt="todo.date" v-bind:color="todo.color" v-bind:done="true"></TodoItem>
         </div>
     </div>
 </template>
@@ -44,6 +44,12 @@
                 "title": "Call grandma",
                 "date": "09/01/2018",
                 "color": "green"
+            },
+            {
+                "title": "Buy gift for Valerie",
+                "date": "09/01/2018",
+                "color": "green",
+                "done": true
             }
         ];
 
@@ -54,7 +60,15 @@
             'grey'
         ];
 
+        newTodoMsg: string = '';
+        inputInvalid: boolean = false;
+        
+
         created() {
+            const initialTodos = [].concat(this.initialTodos);
+            initialTodos.forEach(todo => {
+                todo.id = `ID_${Math.floor(Math.random() * 10e6)}`;
+            });
             this.$store.dispatch('dispatchAddInitialTodos', this.initialTodos);
         }
 
@@ -62,14 +76,40 @@
             return  this.$store.getters.getTodos;
         }
 
+        get doneTodos() {
+            return  this.$store.getters.getDoneTodos;
+        }
+
         get todoColorTypes() {
             return this.colorTypes;
         }
-
-        addNewTodo() {
-            // TODO: add a new todo to the store
+        addNewTodo(color) {
+            this.newTodoMsg = this.newTodoMsg.trim();
+            if (this.newTodoMsg !== '') {
+                const dt = new Date();
+                this.$store.dispatch('dispatchAddNewTodo', {
+                    "id": `ID_${Math.floor(Math.random() * 10e6)}`,
+                    "title": this.newTodoMsg,
+                    "date": `${dt.getMonth() + 1 > 9 ? dt.getMonth() + 1 : '0' + (dt.getMonth() + 1)}/${dt.getDate() > 9 ? dt.getDate() : '0' + dt.getDate() }/${dt.getFullYear()}`,
+                    "color": color
+                });
+                this.newTodoMsg = '';
+                this.inputInvalid = false;
+            } else {
+                this.inputInvalid = true;
+            }
         }
-
+        onNewTodoKeyUp($event:  KeyboardEvent, color) {
+            if ($event.keyCode && $event.keyCode === 13) {
+                this.addNewTodo(color);
+            }
+        }
+        markTodoAsDone(key) {
+            this.$store.dispatch('markTodoAsDone', key);
+        }
+        resetClass() {
+            this.inputInvalid = false;
+        }
     }
 </script>
 <style scoped lang="scss">
@@ -112,10 +152,17 @@
                 font-size: medium;
                 color: #909090;
                 outline: none;
+                outline-offset: 1px;
                 &::placeholder,
                 &::-webkit-input-placeholder {
                     font-size: small;
                     color: #A0A0A0;
+                }
+                &:not(.invalid):focus {
+                  outline: 1px dashed rgba(0,0,0,0.30);
+                }
+                &.invalid {
+                    outline: 1px dashed rgba(red,0.50);
                 }
             }
             .color-types-holder {
@@ -133,6 +180,14 @@
                     margin: 0 5px 0 0;
                     border-radius: 50%;
                     background: rgba(0,0,0,0.10);
+                    position: relative;
+                    outline-offset: 2px;
+                    &:hover {
+                        outline: 1px dashed rgba(0,0,0,0.15);
+                    }
+                    &:focus {
+                        outline: 1px dashed rgba(0,0,0,0.30);
+                    }
                 }
             }
         }
