@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {Todo} from "@/data/todo";
+import { Todo } from "@/data/todo";
 
 Vue.use(Vuex);
 
@@ -8,17 +8,30 @@ export default new Vuex.Store({
     state: {
         todos: []
     },
+    getters: {
+        getTodos: (state) => {
+            return state.todos.sort((x: Todo, y: Todo) => {
+                return (new Date(y.date)).getTime() - (new Date(x.date)).getTime();
+            });
+        }
+    },
     mutations: {
+        clearTodos: (state) => {
+            Vue.set(state, 'todos', []);
+        },
         commitNewTodo: (state, payload: Todo) => {
-            // TODO: add a new todo
+            Vue.set(state, 'todos', [...state.todos, payload]);
         }
     },
     actions: {
         dispatchAddNewTodo: (context, payload: Todo) => {
-            // TODO: commit payload to the store
+            context.commit('commitNewTodo', payload);
         },
         dispatchAddInitialTodos: (context, payload: Array<Todo>) => {
-            // TODO: commit initial todos to the store
+            context.commit('clearTodos');
+            payload.forEach((todo) => {
+                context.commit('commitNewTodo', todo);
+            });
         }
     }
 })

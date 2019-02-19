@@ -8,25 +8,11 @@
             </div>
         </div>
         <div class="todo-holder">
-            <div class="todo" v-for="value in todos">
-                <label class="todo-label">{{value.title}}</label>
-                <div class="todo-type">
-                    <label class="todo-expiry">{{value.date}}</label>
-                    <div class="todo-color-type" v-bind:style="{ backgroundColor: value.color }"></div>
-                </div>
-            </div>
+            <TodoItem v-for="todo in todos"  v-bind:title="todo.title" v-bind:dt="todo.date" v-bind:color="todo.color" v-bind:done="false"></TodoItem>
         </div>
         <div class="todo-holder done-list">
             <h2>Done</h2>
-            <div class="todo done" v-for="value in todos">
-                <label class="todo-label">{{value.title}}</label>
-                <div class="todo-type">
-                    <label class="todo-expiry">{{value.date}}</label>
-                    <div class="todo-color-type" v-bind:style="{ backgroundColor: value.color }">
-                        <i class="material-icons">check</i>
-                    </div>
-                </div>
-            </div>
+            <TodoItem v-for="todo in todos"  v-bind:title="todo.title" v-bind:dt="todo.date" v-bind:color="todo.color" v-bind:done="true"></TodoItem>
         </div>
     </div>
 </template>
@@ -46,17 +32,17 @@
         private initialTodos: Array<Todo> = [
             {
                 "title": "Grocery shopping",
-                "date": "20/08/2018",
+                "date": "08/20/2018",
                 "color": "orange"
             },
             {
                 "title": "Go to the beach",
-                "date": "11/08/2018",
+                "date": "08/11/2018",
                 "color": "blue"
             },
             {
                 "title": "Call grandma",
-                "date": "01/09/2018",
+                "date": "09/01/2018",
                 "color": "green"
             }
         ];
@@ -69,12 +55,11 @@
         ];
 
         created() {
-            // TODO: push list of existing todos to the store
+            this.$store.dispatch('dispatchAddInitialTodos', this.initialTodos);
         }
 
         get todos() {
-            return this.initialTodos;
-            // TODO: get data from the store and display a todo item for each todo in the store
+            return  this.$store.getters.getTodos;
         }
 
         get todoColorTypes() {
